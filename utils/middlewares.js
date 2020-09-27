@@ -26,7 +26,11 @@ function errorHandler (error, request, response, next) {
 }
 
 module.exports = {
-	httpLogger: morgan(':method :url :status :res[content-length] - :response-time ms :body'),
+	httpLogger: morgan(
+		':method :url :status :res[content-length] - :response-time ms :body', {
+			skip: () => process.env.NODE_ENV === 'test'
+		}
+	),
 	unknownEndpoint,
 	errorHandler
 }
