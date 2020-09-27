@@ -86,6 +86,31 @@ test('a blog without url is not added', async () => {
 	expect(blogs).toHaveLength(helper.initialBlogs.length)
 })
 
+test('a blog can be deleted', async () => {
+	const allBlogs = await helper.blogsInDb()
+	await api.delete(`/api/blogs/${allBlogs[0].id}`)
+		.send()
+		.expect(204)
+	const currentBlogs = await helper.blogsInDb()
+
+	expect(currentBlogs).toHaveLength(allBlogs.length - 1)
+})
+
+test('a blog can be updated', async () => {
+	const allBlogs = await helper.blogsInDb()
+	const blogUpdatingId = allBlogs[0].id
+	await api.put(`/api/blogs/${blogUpdatingId}`)
+		.send({ likes: 300 })
+		.expect(response => {
+			const updatedBlog = response.body
+			expect(updatedBlog.likes).toBe(300)
+		})
+
+	const currentBlogs = await helper.blogsInDb()
+	const updatedBlog = currentBlogs.find(blog => blog.id === blogUpdatingId)
+	expect(updatedBlog.likes).toBe(300)
+})
+
 afterAll(async () => {
 	await mongoose.connection.close()
 })
